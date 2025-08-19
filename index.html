@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShodanDorker</title>
+<style>
+body {
+    background-color: black;
+    color: #00FF00;
+    font-family: 'Courier New', monospace;
+    padding: 20px;
+}
+h1 {
+    color: #0f0;
+    text-align: center;
+}
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+li {
+    margin: 5px 0;
+    position: relative;
+}
+a {
+    color: #00FF00;
+    text-decoration: none;
+}
+a:hover {
+    color: #0f0;
+    text-decoration: underline;
+}
+.cursor::after {
+    content: '|';
+    animation: blink 1s infinite;
+    margin-left: 2px;
+}
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0; }
+}
+</style>
+</head>
+<body>
+<h1>Shodan Dorker</h1>
+<ul id="dorkList"></ul>
+
+<script>
+const dorkList = document.getElementById('dorkList');
+
+fetch('dorks.txt')
+    .then(response => response.text())
+    .then(data => {
+        const lines = data.split(/\r?\n/).filter(line => line.trim() !== '');
+        lines.forEach(dork => {
+            dork = dork.trim();
+            // quotes থাকলে সরানো
+            if ((dork.startsWith('"') && dork.endsWith('"')) || 
+                (dork.startsWith("'") && dork.endsWith("'"))) {
+                dork = dork.slice(1, -1);
+            }
+
+            const li = document.createElement('li');
+            li.classList.add('cursor'); 
+            const a = document.createElement('a');
+            a.href = `https://www.shodan.io/search?query=${encodeURIComponent(dork)}`;
+            a.target = '_blank';
+            a.textContent = dork;
+            li.appendChild(a);
+            dorkList.appendChild(li);
+        });
+    })
+    .catch(err => {
+        console.error('Failed to load dorks file:', err);
+        const li = document.createElement('li');
+        li.textContent = "Failed to load dorks.txt. Make sure the file exists in the same folder.";
+        dorkList.appendChild(li);
+    });
+</script>
+</body>
+</html>
